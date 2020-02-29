@@ -1,9 +1,5 @@
 package greedy_algorithm
 
-import (
-	"math"
-)
-
 func Compute(n, m int, distanceMatrix [][]float32) [] int {
 
 	// There are no sets in go, I use bool as value because its light
@@ -13,10 +9,15 @@ func Compute(n, m int, distanceMatrix [][]float32) [] int {
 
 	selectedSet[firstSelected] = true
 
+	notSelectedSet := generateNotSelectedSet(firstSelected, n, distanceMatrix)
+
 	for len(selectedSet) < m {
-		selected := selectDiverseFromSet(selectedSet, distanceMatrix, n)
+		selected := selectDiverseFromSet(notSelectedSet)
 
 		selectedSet[selected] = true
+		delete(notSelectedSet, selected)
+
+		recalculateMinDistances(notSelectedSet, distanceMatrix, selected)
 	}
 
 	return setToSlice(selectedSet)
@@ -41,28 +42,42 @@ func firstSelected (n int, distanceMatrix [][]float32) (selected int) {
 	return selected
 }
 
-func selectDiverseFromSet (selectedSet map[int]bool, distanceMatrix [][] float32, n int)  int {
+func generateNotSelectedSet (firstSelected, n int, distanceMatrix [][]float32 ) map[int]float32 {
 
-	var maxValue float32 = 0
-	max := 0
+	notSelectedSet := make (map[int]float32)
 
 	for i := 0 ; i < n ; i++ {
-		_, contains := selectedSet[i]
-		if !contains {
-			minDistance := float32(math.MaxFloat32)
-			for alreadySelected := range selectedSet {
-				if distanceMatrix[i][alreadySelected] < minDistance {
-					minDistance = distanceMatrix[i][alreadySelected]
-				}
-			}
-			if minDistance > maxValue {
-				maxValue = minDistance
-				max = i
-			}
+		if i != firstSelected {
+			notSelectedSet[i] = distanceMatrix[i][firstSelected]
+		}
+	}
+
+	return notSelectedSet
+}
+
+func selectDiverseFromSet (notSelectedSet map[int]float32)  int {
+
+	var maxValue float32 = 0
+	max := -1
+
+	for notSelected, minDistance := range notSelectedSet {
+		if max == -1 || minDistance > maxValue {
+			maxValue = minDistance
+			max = notSelected
 		}
 	}
 
 	return max
+}
+
+func recalculateMinDistances (notSelectedSet map[int]float32, distanceMatrix [][]float32, selected int) {
+
+	for notSelected, minDistance := range notSelectedSet {
+		distanceWithNewSelected := distanceMatrix[notSelected][selected]
+		if distanceWithNewSelected < minDistance {
+			notSelectedSet[notSelected] = distanceWithNewSelected
+		}
+	}
 }
 
 func setToSlice (selectedSet map[int]bool) (slice []int) {
