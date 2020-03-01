@@ -5,39 +5,37 @@ import (
 	"math/rand"
 )
 
-func Compute (n, m int, distanceMatrix [][] float32) [] int {
+func Compute(n, m int, distanceMatrix [][]float32) []int {
 	selected, notSelected := generateRandomSets(n, m)
 	computeContribution(selected, distanceMatrix)
 
-	justImprovedSolution := true
+	listOfMinContributors := getListOfMinContributors(selected)
 
-	for justImprovedSolution {
-		alreadyTried := make(map[int]bool)
+	for i := 0 ; i < len(listOfMinContributors) ; i++ {
+		minContributor := listOfMinContributors[i].key
+		minContribution := listOfMinContributors[i].contribution
 
-		for len(alreadyTried) < m {
-			minContributor, minContribution := findMinContributor(selected, alreadyTried)
+		candidate, candidateContribution, improvesSolution := tryCandidates(selected, notSelected, minContributor, minContribution, distanceMatrix)
 
-			candidate, candidateContribution, improvesSolution := tryCandidates(selected, notSelected, minContributor, minContribution, distanceMatrix)
-
-			if !improvesSolution {
-				alreadyTried[minContributor] = true
-				justImprovedSolution = false
-			} else {
-				delete(selected, minContributor)
-				selected[candidate] = candidateContribution
-				delete(notSelected, candidate)
-				notSelected[minContributor] = true
-				recalculateContributions(selected, candidate, minContributor, distanceMatrix)
-				justImprovedSolution = true
-				break
-			}
+		if improvesSolution {
+			updateSets(selected, notSelected, minContributor, candidate, candidateContribution)
+			recalculateContributions(selected, candidate, minContributor, distanceMatrix)
+			listOfMinContributors = getListOfMinContributors(selected)
+			i = 0
 		}
 	}
 
 	return setAsSlice(selected, m)
 }
 
-func recalculateContributions(selected map[int]float32, added int, removed int, distanceMatrix [][] float32) {
+func updateSets (selected map[int]float32, notSelected map[int]bool, minContributor int, candidate int, candidateContribution float32) {
+	delete(selected, minContributor)
+	selected[candidate] = candidateContribution
+	delete(notSelected, candidate)
+	notSelected[minContributor] = true
+}
+
+func recalculateContributions(selected map[int]float32, added int, removed int, distanceMatrix [][]float32) {
 	for selectedElem := range selected {
 		if selectedElem != added {
 			selected[selectedElem] -= distanceMatrix[selectedElem][removed]
@@ -46,9 +44,9 @@ func recalculateContributions(selected map[int]float32, added int, removed int, 
 	}
 }
 
-func tryCandidates (selected map[int]float32,  notSelected map[int]bool, minContributor int , minContribution float32, distanceMatrix [][]float32) (int, float32, bool) {
+func tryCandidates(selected map[int]float32, notSelected map[int]bool, minContributor int, minContribution float32, distanceMatrix [][]float32) (int, float32, bool) {
 	for candidate := range notSelected {
-		candidateContribution := computeCandidateContribution (candidate, minContributor, selected, distanceMatrix)
+		candidateContribution := computeCandidateContribution(candidate, minContributor, selected, distanceMatrix)
 
 		increment := candidateContribution - minContribution
 
@@ -60,11 +58,11 @@ func tryCandidates (selected map[int]float32,  notSelected map[int]bool, minCont
 	return 0, 0, false
 }
 
-func computeCandidateContribution (candidate, excluded int, selected map[int]float32, distanceMatrix [][]float32) float32{
+func computeCandidateContribution(candidate, excluded int, selected map[int]float32, distanceMatrix [][]float32) float32 {
 
 	var candidateContribution float32 = 0
 
-	for alreadySelected := range(selected) {
+	for alreadySelected := range selected {
 		if alreadySelected != excluded {
 			candidateContribution += distanceMatrix[alreadySelected][candidate]
 		}
@@ -74,12 +72,12 @@ func computeCandidateContribution (candidate, excluded int, selected map[int]flo
 
 }
 
-func findMinContributor (selected map[int]float32, alreadyTried map[int]bool) (int, float32) {
+func findMinContributor(selected map[int]float32, alreadyTried map[int]bool) (int, float32) {
 	minContribution := float32(math.MaxFloat32)
 	var minSelected int
 
 	for selectedElem, contribution := range selected {
-		_, selectedWasTried	:= alreadyTried[selectedElem]
+		_, selectedWasTried := alreadyTried[selectedElem]
 		if !selectedWasTried && contribution < minContribution {
 			minContribution = contribution
 			minSelected = selectedElem
@@ -98,7 +96,7 @@ func generateRandomSets(n int, m int) (map[int]float32, map[int]bool) {
 
 	notSelected := make(map[int]bool)
 
-	for i := 0 ; i < n ; i++ {
+	for i := 0; i < n; i++ {
 		_, alreadySelected := selected[i]
 
 		if !alreadySelected {
@@ -109,7 +107,7 @@ func generateRandomSets(n int, m int) (map[int]float32, map[int]bool) {
 	return selected, notSelected
 }
 
-func computeContribution (selected map[int]float32, distanceMatrix [][] float32) {
+func computeContribution(selected map[int]float32, distanceMatrix [][]float32) {
 	for i := range selected {
 		var currentContribution float32 = 0
 		for j := range selected {
@@ -119,7 +117,7 @@ func computeContribution (selected map[int]float32, distanceMatrix [][] float32)
 	}
 }
 
-func setAsSlice (selected map[int]float32, m int) []int {
+func setAsSlice(selected map[int]float32, m int) []int {
 	sliceOfSelected := make([]int, 0, m)
 	for selectedElem := range selected {
 		sliceOfSelected = append(sliceOfSelected, selectedElem)
