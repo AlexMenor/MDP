@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	const LOCAL_SEARCH_MAX_ITERATIONS = 100000
 
 	instancesNames := getArrayOfInstancesNames()
 
@@ -35,7 +36,7 @@ func main() {
 	case 0:
 		sol = greedy_algorithm.Compute(n,m, distanceMatrix)
 	case 1:
-		sol = local_search_algorithm.Compute(n,m, distanceMatrix)
+		sol = local_search_algorithm.Compute(n,m, distanceMatrix, LOCAL_SEARCH_MAX_ITERATIONS)
 	}
 
 	fmt.Println(sol)
