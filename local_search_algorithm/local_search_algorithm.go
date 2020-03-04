@@ -1,7 +1,6 @@
 package local_search_algorithm
 
 import (
-	"math"
 	"math/rand"
 )
 
@@ -77,21 +76,6 @@ func computeCandidateContribution(candidate, excluded int, selected map[int]floa
 
 	return candidateContribution
 
-}
-
-func findMinContributor(selected map[int]float32, alreadyTried map[int]bool) (int, float32) {
-	minContribution := float32(math.MaxFloat32)
-	var minSelected int
-
-	for selectedElem, contribution := range selected {
-		_, selectedWasTried := alreadyTried[selectedElem]
-		if !selectedWasTried && contribution < minContribution {
-			minContribution = contribution
-			minSelected = selectedElem
-		}
-	}
-
-	return minSelected, minContribution
 }
 
 func generateRandomSets(n int, m int) (map[int]float32, map[int]bool) {
