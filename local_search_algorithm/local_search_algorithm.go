@@ -8,6 +8,8 @@ import (
 func Compute(n, m int, distanceMatrix [][]float32) []int {
 	selected, notSelected := generateRandomSets(n, m)
 	computeContribution(selected, distanceMatrix)
+	const MAX_ITERATIONS = 100000
+	iterations := 0
 
 	listOfMinContributors := getListOfMinContributors(selected)
 
@@ -22,6 +24,11 @@ func Compute(n, m int, distanceMatrix [][]float32) []int {
 			recalculateContributions(selected, candidate, minContributor, distanceMatrix)
 			listOfMinContributors = getListOfMinContributors(selected)
 			i = 0
+		}
+
+		iterations++
+		if iterations == MAX_ITERATIONS {
+			return setAsSlice(selected, m)
 		}
 	}
 
