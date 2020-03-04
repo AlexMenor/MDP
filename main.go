@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -62,6 +63,8 @@ func getArrayOfInstancesNames () []string {
 	for _, file := range files {
 		instancesNames = append(instancesNames, file.Name())
 	}
+
+	sort.Strings(instancesNames)
 
 	return instancesNames
 }
