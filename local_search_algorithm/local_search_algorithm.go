@@ -4,7 +4,10 @@ import (
 	"math/rand"
 )
 
-func Compute(n, m int, distanceMatrix [][]float32, MAX_ITERATIONS int) []int {
+func Compute(n, m int, distanceMatrix [][]float32) []int {
+
+	const MAX_ITERATIONS int = 100000
+
 	selected, notSelected := generateRandomSets(n, m)
 	computeContribution(selected, distanceMatrix)
 	iterations := 0

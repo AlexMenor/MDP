@@ -12,15 +12,29 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
-	const LOCAL_SEARCH_MAX_ITERATIONS = 100000
+
+	args := os.Args
+	if len(args) > 1 {
+		if args[1] == "all" {
+			runAllInstances()
+		} else {
+			runInteractive()
+		}
+	} else {
+		runInteractive()
+	}
+}
+
+func runInteractive() {
 
 	instancesNames := getArrayOfInstancesNames()
 
 	fmt.Println("Please choose a test!")
-	printInstancesNames (instancesNames)
+	printInstancesNames(instancesNames)
 
 	choice := readChoice(len(instancesNames))
 
@@ -35,9 +49,9 @@ func main() {
 	var sol []int
 	switch choice {
 	case 0:
-		sol = greedy_algorithm.Compute(n,m, distanceMatrix)
+		sol = greedy_algorithm.Compute(n, m, distanceMatrix)
 	case 1:
-		sol = local_search_algorithm.Compute(n,m, distanceMatrix, LOCAL_SEARCH_MAX_ITERATIONS)
+		sol = local_search_algorithm.Compute(n, m, distanceMatrix)
 	}
 
 	fmt.Println(sol)
@@ -45,7 +59,53 @@ func main() {
 
 }
 
-func getArrayOfInstancesNames () []string {
+func runAllInstances() {
+
+	const GREEDY_FILE_NAME = "results/greedy-results.csv"
+	const LOCAL_SEARCH_FILE_NAME = "results/local-search-results.csv"
+
+	greedyFile, _ := os.Create(GREEDY_FILE_NAME)
+	localSearchFile, _ := os.Create(LOCAL_SEARCH_FILE_NAME)
+
+	instancesNames := getArrayOfInstancesNames()
+
+	for _, instance := range instancesNames {
+		scoreGreedy, scoreLocal, timeGreedy, timeLocal := runInstance(instance)
+
+		writeResultsCsv(instance, scoreGreedy, timeGreedy, greedyFile)
+		writeResultsCsv(instance, scoreLocal, timeLocal, localSearchFile)
+	}
+}
+
+func runInstance(instance string) (float32, float32, int64, int64) {
+	file := path.Join("problem_instances", instance)
+
+	n, m, distanceMatrix := problem_reader.ReadFile(file)
+
+	start := time.Now()
+	solGreedy := greedy_algorithm.Compute(n, m, distanceMatrix)
+	end := time.Now()
+	durationGreedy := end.Sub(start)
+
+	start = time.Now()
+	solLocal := local_search_algorithm.Compute(n, m, distanceMatrix)
+	end = time.Now()
+	durationLocal := end.Sub(start)
+
+	return getDiversity(solGreedy, distanceMatrix, m), getDiversity(solLocal, distanceMatrix, m),
+	durationGreedy.Milliseconds(), durationLocal.Milliseconds()
+}
+
+func writeResultsCsv(instance string, score float32, time int64, file *os.File) {
+
+	line := fmt.Sprintf("%s,%f,%d\n", instance, score, time)
+
+	writter := bufio.NewWriter(file)
+	writter.WriteString(line)
+	writter.Flush()
+}
+
+func getArrayOfInstancesNames() []string {
 	f, err := os.Open("./problem_instances")
 
 	if err != nil {
@@ -69,21 +129,21 @@ func getArrayOfInstancesNames () []string {
 	return instancesNames
 }
 
-func printInstancesNames (instancesNames []string) {
+func printInstancesNames(instancesNames []string) {
 	for index, name := range instancesNames {
 		fmt.Printf("%d. %s\n", index, name)
 	}
 }
 
-func printAlgorithmNames () {
+func printAlgorithmNames() {
 	fmt.Println("0. Greedy Algorithm")
 	fmt.Println("1. Local Search Algorithm")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {
 
-	for i := 0 ; i < m - 1 ; i++ {
-		for j := i + 1 ; j < m ; j++ {
+	for i := 0; i < m-1; i++ {
+		for j := i + 1; j < m; j++ {
 			diversity += distanceMatrix[selected[i]][selected[j]]
 		}
 	}
@@ -91,7 +151,7 @@ func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity 
 	return diversity
 }
 
-func readChoice (limit int) int {
+func readChoice(limit int) int {
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')
 
