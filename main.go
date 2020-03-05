@@ -97,7 +97,7 @@ func runInstance(instance string) (float32, float32, int64, int64) {
 	durationLocal := end.Sub(start)
 
 	return getDiversity(solGreedy, distanceMatrix, m), getDiversity(solLocal, distanceMatrix, m),
-	durationGreedy.Milliseconds(), durationLocal.Milliseconds()
+	durationGreedy.Microseconds(), durationLocal.Microseconds()
 }
 
 func writeResultsCsv(instance string, score float32, time int64, file *os.File) {
