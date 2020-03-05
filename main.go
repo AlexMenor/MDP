@@ -61,11 +61,15 @@ func runInteractive() {
 
 func runAllInstances() {
 
-	const GREEDY_FILE_NAME = "results/greedy-results.csv"
-	const LOCAL_SEARCH_FILE_NAME = "results/local-search-results.csv"
+	const RESULTS_DIRECTORY = "results/"
 
-	greedyFile, _ := os.Create(GREEDY_FILE_NAME)
-	localSearchFile, _ := os.Create(LOCAL_SEARCH_FILE_NAME)
+	const GREEDY_FILE_NAME = "greedy-results.csv"
+	const LOCAL_SEARCH_FILE_NAME = "local-search-results.csv"
+
+	os.Mkdir(RESULTS_DIRECTORY, os.ModePerm)
+
+	greedyFile, _ := os.Create(path.Join(RESULTS_DIRECTORY, GREEDY_FILE_NAME))
+	localSearchFile, _ := os.Create(path.Join(RESULTS_DIRECTORY, LOCAL_SEARCH_FILE_NAME))
 
 	instancesNames := getArrayOfInstancesNames()
 
