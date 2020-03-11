@@ -1,0 +1,18 @@
+greedy_algorithm: Archivos que contienen el codigo fuente del algoritmo greedy.
+
+local_search_algorithm: Idem para el algoritmo de búsqueda local.
+
+problem_instances: txt dados para ejecutar instancias del problema y testear los algoritmos.
+
+problem_reader: Código para leer los archivos de instancia y obtener una matriz de distancias, n y m
+
+results: Aquí se escriben los resultados de ejecutar todas las instancias con los dos algoritmos como archivos csv.
+Lo entrego con archivos csv de la ejecución de los resultados que he entregado pero se puede volver a ejecutar con argumento "all" para volver a obtenerlos.
+
+.gitignore: Para el control de versiones.
+
+dockerBuildAndRun.sh: Script que construye y ejecuta el programa en caso de que el profesor no tenga instalado GO.
+
+go.mod: Control de dependencias de go
+
+main.go: Entrypoint del programa.
