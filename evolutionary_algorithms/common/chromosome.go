@@ -7,6 +7,49 @@ type Chromosome struct {
 	value float32
 }
 
+func (c Chromosome) Equals(other Chromosome) bool {
+	if len(c.genes) != len(other.genes) {
+		return false
+	}
+	toReturn := true
+
+	for i := 0; i < len(c.genes) && toReturn; i++ {
+		toReturn = c.genes[i] == other.genes[i]
+	}
+
+	return toReturn
+}
+
+func (c *Chromosome) Mutate(distanceMatrix [][]float32) {
+	genToMutate := rand.Intn(len(c.genes))
+	current := c.genes[genToMutate]
+	newValue := !current
+
+	otherGenToMutate := rand.Intn(len(c.genes))
+	for otherGenToMutate == genToMutate || c.genes[otherGenToMutate] == current {
+		otherGenToMutate = rand.Intn(len(c.genes))
+	}
+
+	c.genes[genToMutate] = newValue
+	c.genes[otherGenToMutate] = current
+
+	c.value = computeValue(distanceMatrix, c.genes)
+}
+
+type Poblation []Chromosome
+
+func (p Poblation) Len() int {
+	return len(p)
+}
+
+func (p Poblation) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p Poblation) Less(i, j int) bool {
+	return p[i].value < p[j].value
+}
+
 func GenRandomChromosome(distanceMatrix [][]float32, n int, m int) Chromosome {
 
 	genes := genRandomGenes(n, m)

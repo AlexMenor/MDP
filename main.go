@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MDP/evolutionary_algorithms/genetic_algorithm"
 	"MDP/greedy_algorithm"
 	"MDP/local_search_algorithm"
 	"MDP/problem_reader"
@@ -52,6 +53,8 @@ func runInteractive() {
 		sol = greedy_algorithm.Compute(n, m, distanceMatrix)
 	case 1:
 		sol = local_search_algorithm.Compute(n, m, distanceMatrix)
+	case 2:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Positional)
 	}
 
 	fmt.Println(sol)
@@ -97,7 +100,7 @@ func runInstance(instance string) (float32, float32, int64, int64) {
 	durationLocal := end.Sub(start)
 
 	return getDiversity(solGreedy, distanceMatrix, m), getDiversity(solLocal, distanceMatrix, m),
-	durationGreedy.Microseconds(), durationLocal.Microseconds()
+		durationGreedy.Microseconds(), durationLocal.Microseconds()
 }
 
 func writeResultsCsv(instance string, score float32, time int64, file *os.File) {
@@ -142,6 +145,7 @@ func printInstancesNames(instancesNames []string) {
 func printAlgorithmNames() {
 	fmt.Println("0. Greedy Algorithm")
 	fmt.Println("1. Local Search Algorithm")
+	fmt.Println("2. Genetic Algorithm")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {
