@@ -162,10 +162,10 @@ func repareGenes(genes []bool, distanceMatrix [][]float32, m int) {
 
 func discardGenes(genes []bool, genesToDiscard int, distanceMatrix [][]float32) {
 
-	leastContributors := getListOfLeastContributors(genes, distanceMatrix)
+	mostContributors := getListOfMostContributors(genes, distanceMatrix)
 
-	for i := 0; i < len(leastContributors) && genesToDiscard > 0; i++ {
-		badContributor := leastContributors[i]
+	for i := 0; i < len(mostContributors) && genesToDiscard > 0; i++ {
+		badContributor := mostContributors[i]
 		genes[badContributor.index] = false
 		genesToDiscard--
 	}
@@ -200,7 +200,7 @@ func (cs Contributors) Less(i, j int) bool {
 	return cs[i].contribution < cs[j].contribution
 }
 
-func getListOfLeastContributors(genes []bool, distanceMatrix [][]float32) Contributors {
+func getListOfMostContributors(genes []bool, distanceMatrix [][]float32) Contributors {
 
 	toReturn := make(Contributors, 0)
 
@@ -211,7 +211,7 @@ func getListOfLeastContributors(genes []bool, distanceMatrix [][]float32) Contri
 		}
 	}
 
-	sort.Sort(toReturn)
+	sort.Sort(sort.Reverse(toReturn))
 
 	return toReturn
 }
