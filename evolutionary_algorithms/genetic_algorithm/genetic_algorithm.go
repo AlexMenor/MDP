@@ -48,9 +48,9 @@ func computeGenerational(distanceMatrix [][]float32, n, m, tam int, crossoverTyp
 			var secondChild common.Chromosome
 
 			if crossoverType == Positional {
-				firstChild, secondChild = common.PositionalCrossOver(father, mother, distanceMatrix)
+				firstChild, secondChild = common.PositionalCrossover(father, mother, distanceMatrix)
 			} else {
-				firstChild, secondChild = common.UniformCrossOver(father, mother, distanceMatrix)
+				firstChild, secondChild = common.UniformCrossover(father, mother, distanceMatrix, m)
 			}
 
 			selected[j] = firstChild

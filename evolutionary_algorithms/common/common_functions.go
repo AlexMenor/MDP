@@ -24,7 +24,7 @@ func GetSelectedFromPoblation(currentPoblation Poblation) Poblation {
 	return toReturn
 }
 
-func PositionalCrossOver(father Chromosome, mother Chromosome, distanceMatrix [][]float32) (firstChild, secondChild Chromosome) {
+func PositionalCrossover(father Chromosome, mother Chromosome, distanceMatrix [][]float32) (firstChild, secondChild Chromosome) {
 	nGenes := len(father.genes)
 
 	commonGenes := make([]bool, nGenes, nGenes)
@@ -48,10 +48,10 @@ func PositionalCrossOver(father Chromosome, mother Chromosome, distanceMatrix []
 
 	return firstChild, secondChild
 }
-func UniformCrossover(father Chromosome, mother Chromosome, distanceMatrix [][]float32) (firstChild, secondChild Chromosome) {
+func UniformCrossover(father Chromosome, mother Chromosome, distanceMatrix [][]float32, m int) (firstChild, secondChild Chromosome) {
 	nGenes := len(father.genes)
-	firstChildGenes := make([]bool, nGenes, nGenes )
-	secondChildGenes := make([]bool, nGenes, nGenes )
+	firstChildGenes := make([]bool, nGenes, nGenes)
+	secondChildGenes := make([]bool, nGenes, nGenes)
 
 	for g := 0; g < nGenes; g++ {
 		if father.genes[g] == mother.genes[g] {
@@ -76,6 +76,13 @@ func UniformCrossover(father Chromosome, mother Chromosome, distanceMatrix [][]f
 		}
 	}
 
+	repareGenes(firstChildGenes, distanceMatrix, m)
+	repareGenes(secondChildGenes, distanceMatrix, m)
+
+	firstChildValue := computeValue(distanceMatrix, firstChildGenes)
+	secondChildValue := computeValue(distanceMatrix, secondChildGenes)
+
+	return Chromosome{firstChildGenes, firstChildValue}, Chromosome{secondChildGenes, secondChildValue}
 
 }
 
@@ -106,7 +113,6 @@ func Mutate(poblation Poblation, numOfMutations int, distanceMatrix [][]float32)
 func getCompleteChildGenes(commonGenes []bool, unasignedGenesIndex []int, unasignedGenesValues []bool) []bool {
 	nGenes := len(commonGenes)
 	toReturn := make([]bool, nGenes)
-
 
 	for i := 0; i < nGenes; i++ {
 		toReturn[i] = commonGenes[i]
@@ -142,6 +148,108 @@ func getAWinner(currentPoblation Poblation) Chromosome {
 	} else {
 		return second
 	}
+}
+
+func repareGenes(genes []bool, distanceMatrix [][]float32, m int) {
+	currentlyTrue := countTrueGenes(genes)
+
+	if currentlyTrue > m {
+		discardGenes(genes, currentlyTrue-m, distanceMatrix)
+	} else if currentlyTrue < m {
+		addGenes(genes, m-currentlyTrue, distanceMatrix)
+	}
+}
+
+func discardGenes(genes []bool, genesToDiscard int, distanceMatrix [][]float32) {
+
+	leastContributors := getListOfLeastContributors(genes, distanceMatrix)
+
+	for i := 0; i < len(leastContributors) && genesToDiscard > 0; i++ {
+		badContributor := leastContributors[i]
+		genes[badContributor.index] = false
+		genesToDiscard--
+	}
+}
+
+func addGenes(genes []bool, genesToAdd int, distanceMatrix [][]float32) {
+	mostPromissing := getListOfMostPromissing(genes, distanceMatrix)
+
+	for i := 0; i < len(mostPromissing) && genesToAdd > 0; i++ {
+		promissing := mostPromissing[i]
+		genes[promissing.index] = true
+		genesToAdd--
+	}
+}
+
+type Contributor struct {
+	index        int
+	contribution float32
+}
+
+type Contributors []Contributor
+
+func (cs Contributors) Len() int {
+	return len(cs)
+}
+
+func (cs Contributors) Swap(i, j int) {
+	cs[i], cs[j] = cs[j], cs[i]
+}
+
+func (cs Contributors) Less(i, j int) bool {
+	return cs[i].contribution < cs[j].contribution
+}
+
+func getListOfLeastContributors(genes []bool, distanceMatrix [][]float32) Contributors {
+
+	toReturn := make(Contributors, 0)
+
+	for i, g := range genes {
+		if g {
+			contributor := Contributor{index: i, contribution: getContribution(genes, i, distanceMatrix)}
+			toReturn = append(toReturn, contributor)
+		}
+	}
+
+	sort.Sort(toReturn)
+
+	return toReturn
+}
+
+func getContribution(genes []bool, contributor int, distanceMatrix [][]float32) float32 {
+	var contribution float32 = 0
+	for i, g := range genes {
+		if g {
+			contribution += distanceMatrix[i][contributor]
+		}
+	}
+	return contribution
+}
+
+func getListOfMostPromissing(genes []bool, distanceMatrix [][]float32) Contributors {
+	toReturn := make(Contributors, 0)
+	for i, g := range genes {
+		if !g {
+			contributor := Contributor{index: i, contribution: getContribution(genes, i, distanceMatrix)}
+			toReturn = append(toReturn, contributor)
+		}
+	}
+
+	sort.Sort(sort.Reverse(toReturn))
+
+
+	return toReturn
+}
+
+func countTrueGenes(genes []bool) int {
+	toReturn := 0
+
+	for _, g := range genes {
+		if g {
+			toReturn++
+		}
+	}
+	return toReturn
 }
 
 func ChromosomeToSolution(chromosome Chromosome) []int {

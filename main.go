@@ -54,7 +54,7 @@ func runInteractive() {
 	case 1:
 		sol = local_search_algorithm.Compute(n, m, distanceMatrix)
 	case 2:
-		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Positional)
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Uniform)
 	}
 
 	fmt.Println(sol)
