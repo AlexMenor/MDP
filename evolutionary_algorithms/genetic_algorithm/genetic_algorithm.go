@@ -41,7 +41,7 @@ func computeGenerational(distanceMatrix [][]float32, n, m, tam int, crossoverTyp
 
 	var evaluationsLeft int = MAX_TARGET_EVALUATIONS - tam
 
-	MAX_ITERATIONS := evaluationsLeft / (numOfCrossoversPerIteration + numOfMutationsPerIteration)
+	MAX_ITERATIONS := evaluationsLeft / (numOfCrossoversPerIteration*2 + numOfMutationsPerIteration)
 
 	poblation := common.GenRandomPoblation(distanceMatrix, n, m, tam)
 

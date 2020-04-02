@@ -1,6 +1,8 @@
 package common
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 type Chromosome struct {
 	genes []bool
