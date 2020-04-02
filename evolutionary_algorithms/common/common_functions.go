@@ -14,8 +14,7 @@ func GenRandomPoblation(distanceMatrix [][]float32, n, m, tam int) Poblation {
 	return toReturn
 }
 
-func GetSelectedFromPoblation(currentPoblation Poblation) Poblation {
-	selectedTam := len(currentPoblation)
+func GetSelectedFromPoblation(currentPoblation Poblation, selectedTam int) Poblation {
 	toReturn := make(Poblation, 0, selectedTam)
 	for i := 0; i < selectedTam; i++ {
 		winner := getAWinner(currentPoblation)
@@ -79,14 +78,11 @@ func UniformCrossover(father Chromosome, mother Chromosome, distanceMatrix [][]f
 	repareGenes(firstChildGenes, distanceMatrix, m)
 	repareGenes(secondChildGenes, distanceMatrix, m)
 
-	firstChildValue := computeValue(distanceMatrix, firstChildGenes)
-	secondChildValue := computeValue(distanceMatrix, secondChildGenes)
-
-	return Chromosome{firstChildGenes, firstChildValue}, Chromosome{secondChildGenes, secondChildValue}
+	return GenChromosomeFromGenes(firstChildGenes, distanceMatrix), GenChromosomeFromGenes(secondChildGenes, distanceMatrix)
 
 }
 
-func Replace(current Poblation, selected Poblation) {
+func KeepBest(current Poblation, selected Poblation) Poblation{
 	sort.Sort(current)
 	sort.Sort(selected)
 
@@ -101,6 +97,8 @@ func Replace(current Poblation, selected Poblation) {
 	if !isStillSelected {
 		selected[0] = bestOfCurrent
 	}
+
+	return selected
 }
 
 func Mutate(poblation Poblation, numOfMutations int, distanceMatrix [][]float32) {
@@ -144,9 +142,9 @@ func getAWinner(currentPoblation Poblation) Chromosome {
 	second := currentPoblation[secondIndex]
 
 	if first.value > second.value {
-		return first
+		return first.Copy()
 	} else {
-		return second
+		return second.Copy()
 	}
 }
 
@@ -236,7 +234,6 @@ func getListOfMostPromissing(genes []bool, distanceMatrix [][]float32) Contribut
 	}
 
 	sort.Sort(sort.Reverse(toReturn))
-
 
 	return toReturn
 }

@@ -45,7 +45,7 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(3)
+	choice = readChoice(5)
 
 	var sol []int
 	switch choice {
@@ -57,6 +57,10 @@ func runInteractive() {
 		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Positional)
 	case 3:
 		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Uniform)
+	case 4:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Stationary, genetic_algorithm.Positional)
+	case 5:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Stationary, genetic_algorithm.Uniform)
 	}
 
 	fmt.Println(sol)
@@ -149,6 +153,8 @@ func printAlgorithmNames() {
 	fmt.Println("1. Local Search Algorithm")
 	fmt.Println("2. Genetic Generational Algorithm Positional Crossover")
 	fmt.Println("3. Genetic Generational Algorithm Uniform Crossover")
+	fmt.Println("4. Genetic Stationary Algorithm Positional Crossover")
+	fmt.Println("5. Genetic Stationary Algorithm Uniform Crossover")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {

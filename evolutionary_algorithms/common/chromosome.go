@@ -36,6 +36,13 @@ func (c *Chromosome) Mutate(distanceMatrix [][]float32) {
 	c.value = computeValue(distanceMatrix, c.genes)
 }
 
+func (c Chromosome) Copy() Chromosome {
+	copyOfGenes := make([]bool, len(c.genes))
+	copy(copyOfGenes, c.genes)
+
+	return Chromosome{copyOfGenes, c.value}
+}
+
 type Poblation []Chromosome
 
 func (p Poblation) Len() int {
