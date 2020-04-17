@@ -2,6 +2,7 @@ package main
 
 import (
 	"MDP/evolutionary_algorithms/genetic_algorithm"
+	"MDP/evolutionary_algorithms/memetic_algorithm"
 	"MDP/greedy_algorithm"
 	"MDP/local_search_algorithm"
 	"MDP/problem_reader"
@@ -19,12 +20,8 @@ import (
 func main() {
 
 	args := os.Args
-	if len(args) > 1 {
-		if args[1] == "all" {
-			runAllInstances()
-		} else {
-			runInteractive()
-		}
+	if len(args) > 1 && args[1] == "all" {
+		runAllInstances()
 	} else {
 		runInteractive()
 	}
@@ -45,14 +42,14 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(5)
+	choice = readChoice(8)
 
 	var sol []int
 	switch choice {
 	case 0:
 		sol = greedy_algorithm.Compute(n, m, distanceMatrix)
 	case 1:
-		sol = local_search_algorithm.Compute(n, m, distanceMatrix)
+		sol, _ = local_search_algorithm.Compute(n, m, distanceMatrix)
 	case 2:
 		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Positional)
 	case 3:
@@ -61,6 +58,12 @@ func runInteractive() {
 		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Stationary, genetic_algorithm.Positional)
 	case 5:
 		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Stationary, genetic_algorithm.Uniform)
+	case 6:
+		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.WholePoblation)
+	case 7:
+		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.OneRandom)
+	case 8:
+		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.BestOne)
 	}
 
 	fmt.Println(sol)
@@ -72,41 +75,66 @@ func runAllInstances() {
 
 	const RESULTS_DIRECTORY = "results/"
 
-	const GREEDY_FILE_NAME = "greedy-results.csv"
-	const LOCAL_SEARCH_FILE_NAME = "local-search-results.csv"
+	fileNames := []string{
+		"greedy-results.csv",
+		"local-search-results.csv",
+		"genetic-generational-positional-results.csv",
+		"genetic-generational-uniform-results.csv",
+		"genetic-stationary-positional-results.csv",
+		"genetic-stationary-uniform-results.csv",
+		"memetic-whole-poblation",
+		"memetic-one-random",
+		"memetic-best-one",
 
+	}
 	os.Mkdir(RESULTS_DIRECTORY, os.ModePerm)
-
-	greedyFile, _ := os.Create(path.Join(RESULTS_DIRECTORY, GREEDY_FILE_NAME))
-	localSearchFile, _ := os.Create(path.Join(RESULTS_DIRECTORY, LOCAL_SEARCH_FILE_NAME))
-
 	instancesNames := getArrayOfInstancesNames()
 
-	for _, instance := range instancesNames {
-		scoreGreedy, scoreLocal, timeGreedy, timeLocal := runInstance(instance)
+	for i, name := range fileNames {
+		file, _ := os.Create(path.Join(RESULTS_DIRECTORY, name))
+		for _, instance := range instancesNames {
+			score, time := runInstance(instance, i)
 
-		writeResultsCsv(instance, scoreGreedy, timeGreedy, greedyFile)
-		writeResultsCsv(instance, scoreLocal, timeLocal, localSearchFile)
+			writeResultsCsv(instance, score, time, file)
+		}
+
 	}
+
 }
 
-func runInstance(instance string) (float32, float32, int64, int64) {
+func runInstance(instance string, algorithm int) (float32, int64) {
 	file := path.Join("problem_instances", instance)
 
 	n, m, distanceMatrix := problem_reader.ReadFile(file)
 
+	var sol []int
+
 	start := time.Now()
-	solGreedy := greedy_algorithm.Compute(n, m, distanceMatrix)
+	switch algorithm {
+	case 0:
+		sol = greedy_algorithm.Compute(n, m, distanceMatrix)
+	case 1:
+		sol,_ = local_search_algorithm.Compute(n, m, distanceMatrix)
+	case 2:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Positional)
+	case 3:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Uniform)
+	case 4:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Stationary, genetic_algorithm.Positional)
+	case 5:
+		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Stationary, genetic_algorithm.Uniform)
+	case 6:
+		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.WholePoblation)
+	case 7:
+		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.OneRandom)
+	case 8:
+		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.BestOne)
+	}
+
 	end := time.Now()
-	durationGreedy := end.Sub(start)
+	duration := end.Sub(start)
 
-	start = time.Now()
-	solLocal := local_search_algorithm.Compute(n, m, distanceMatrix)
-	end = time.Now()
-	durationLocal := end.Sub(start)
-
-	return getDiversity(solGreedy, distanceMatrix, m), getDiversity(solLocal, distanceMatrix, m),
-		durationGreedy.Microseconds(), durationLocal.Microseconds()
+	return getDiversity(sol, distanceMatrix, m), duration.Microseconds()
 }
 
 func writeResultsCsv(instance string, score float32, time int64, file *os.File) {
@@ -155,6 +183,9 @@ func printAlgorithmNames() {
 	fmt.Println("3. Genetic Generational Algorithm Uniform Crossover")
 	fmt.Println("4. Genetic Stationary Algorithm Positional Crossover")
 	fmt.Println("5. Genetic Stationary Algorithm Uniform Crossover")
+	fmt.Println("6. Memetic Algorithm (Whole Poblation)")
+	fmt.Println("7. Memetic Algorithm (One Random)")
+	fmt.Println("8. Memetic Algorithm (Best One)")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {

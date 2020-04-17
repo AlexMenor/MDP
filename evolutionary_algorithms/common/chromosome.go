@@ -73,6 +73,26 @@ func GenChromosomeFromGenes(genes []bool, distanceMatrix [][]float32) Chromosome
 	return Chromosome{genes, value}
 }
 
+func GenChromosomeFromSolution(solution []int, distanceMatrix [][]float32) Chromosome {
+
+	genes := genesFromSolution(len(distanceMatrix), solution)
+
+	value := computeValue(distanceMatrix, genes)
+
+	return Chromosome{genes, value}
+
+}
+
+func genesFromSolution(n int, solution []int) []bool {
+	genes := make([]bool, n, n)
+
+	for _, s := range solution {
+		genes[s] = true
+	}
+
+	return genes
+}
+
 func genRandomGenes(n int, m int) []bool {
 	genes := make([]bool, n, n)
 

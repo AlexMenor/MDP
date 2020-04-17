@@ -4,17 +4,30 @@ import (
 	"math/rand"
 )
 
-func Compute(n, m int, distanceMatrix [][]float32) []int {
-
+func Compute(n, m int, distanceMatrix [][]float32) ([]int, int) {
 	const MAX_ITERATIONS int = 100000
 
 	selected, notSelected := generateRandomSets(n, m)
+
+	return ComputeWithSelectedSets(n, m, distanceMatrix, selected, notSelected, MAX_ITERATIONS)
+}
+
+func ComputeForMemeticAlgorithm(n, m int, distanceMatrix [][]float32, initialSolution []int) ([]int, int) {
+	const MAX_ITERATIONS = 400
+
+	selected, notSelected := generateSetsFromInitialSolution(n, initialSolution)
+
+	return ComputeWithSelectedSets(n, m, distanceMatrix, selected, notSelected, MAX_ITERATIONS)
+}
+
+func ComputeWithSelectedSets(n, m int, distanceMatrix [][]float32, selected map[int]float32, notSelected map[int]bool, MAX_ITERATIONS int) ([]int, int) {
+
 	computeContribution(selected, distanceMatrix)
 	iterations := 0
 
 	listOfMinContributors := getListOfMinContributors(selected)
 
-	for i := 0 ; i < len(listOfMinContributors) ; i++ {
+	for i := 0; i < len(listOfMinContributors); i++ {
 		minContributor := listOfMinContributors[i].key
 		minContribution := listOfMinContributors[i].contribution
 
@@ -29,14 +42,14 @@ func Compute(n, m int, distanceMatrix [][]float32) []int {
 
 		iterations++
 		if iterations == MAX_ITERATIONS {
-			return setAsSlice(selected, m)
+			return setAsSlice(selected, m), iterations
 		}
 	}
 
-	return setAsSlice(selected, m)
+	return setAsSlice(selected, m), iterations
 }
 
-func updateSets (selected map[int]float32, notSelected map[int]bool, minContributor int, candidate int, candidateContribution float32) {
+func updateSets(selected map[int]float32, notSelected map[int]bool, minContributor int, candidate int, candidateContribution float32) {
 	delete(selected, minContributor)
 	selected[candidate] = candidateContribution
 	delete(notSelected, candidate)
@@ -92,6 +105,23 @@ func generateRandomSets(n int, m int) (map[int]float32, map[int]bool) {
 	for i := 0; i < n; i++ {
 		_, alreadySelected := selected[i]
 
+		if !alreadySelected {
+			notSelected[i] = true
+		}
+	}
+
+	return selected, notSelected
+}
+func generateSetsFromInitialSolution(n int, initialSolution []int) (map[int]float32, map[int]bool) {
+	selected := make(map[int]float32)
+	notSelected := make(map[int]bool)
+
+	for _, s := range initialSolution {
+		selected[s] = 0.0
+	}
+
+	for i := 0; i < n; i++ {
+		_, alreadySelected := selected[i]
 		if !alreadySelected {
 			notSelected[i] = true
 		}
