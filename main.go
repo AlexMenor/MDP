@@ -82,9 +82,9 @@ func runAllInstances() {
 		"genetic-generational-uniform-results.csv",
 		"genetic-stationary-positional-results.csv",
 		"genetic-stationary-uniform-results.csv",
-		"memetic-whole-poblation",
-		"memetic-one-random",
-		"memetic-best-one",
+		"memetic-whole-poblation.csv",
+		"memetic-one-random.csv",
+		"memetic-best-one.csv",
 
 	}
 	os.Mkdir(RESULTS_DIRECTORY, os.ModePerm)
