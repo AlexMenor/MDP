@@ -1,6 +1,7 @@
 package main
 
 import (
+	"MDP/bmb_algorithm"
 	"MDP/evolutionary_algorithms/genetic_algorithm"
 	"MDP/evolutionary_algorithms/memetic_algorithm"
 	"MDP/greedy_algorithm"
@@ -43,7 +44,7 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(9)
+	choice = readChoice(10)
 
 	var sol []int
 	switch choice {
@@ -67,6 +68,8 @@ func runInteractive() {
 		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.BestOne)
 	case 9:
 		sol = simulated_annealing_algorithm.Compute(n,m, distanceMatrix)
+	case 10:
+		sol = bmb_algorithm.Compute(n,m, distanceMatrix)
 	}
 
 	fmt.Println(sol)
@@ -190,6 +193,7 @@ func printAlgorithmNames() {
 	fmt.Println("7. Memetic Algorithm (One Random)")
 	fmt.Println("8. Memetic Algorithm (Best One)")
 	fmt.Println("9. Simulated Annealing")
+	fmt.Println("10. BMB")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {

@@ -4,8 +4,17 @@ import (
 	"math/rand"
 )
 
+
 func Compute(n, m int, distanceMatrix [][]float32) ([]int, int) {
 	const MAX_ITERATIONS int = 100000
+
+	selected, notSelected := generateRandomSets(n, m)
+
+	return ComputeWithSelectedSets(n, m, distanceMatrix, selected, notSelected, MAX_ITERATIONS)
+}
+
+func ComputeForBMB(n, m int, distanceMatrix [][]float32) ([]int, int) {
+	const MAX_ITERATIONS int = 10000
 
 	selected, notSelected := generateRandomSets(n, m)
 
