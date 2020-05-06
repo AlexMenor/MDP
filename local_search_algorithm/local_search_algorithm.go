@@ -20,6 +20,13 @@ func ComputeForBMB(n, m int, distanceMatrix [][]float32) ([]int, int) {
 
 	return ComputeWithSelectedSets(n, m, distanceMatrix, selected, notSelected, MAX_ITERATIONS)
 }
+func ComputeForILS(n, m int, distanceMatrix [][]float32, initialSolution []int) ([]int, int) {
+	const MAX_ITERATIONS = 10000
+
+	selected, notSelected := generateSetsFromInitialSolution(n, initialSolution)
+
+	return ComputeWithSelectedSets(n, m, distanceMatrix, selected, notSelected, MAX_ITERATIONS)
+}
 
 func ComputeForMemeticAlgorithm(n, m int, distanceMatrix [][]float32, initialSolution []int) ([]int, int) {
 	const MAX_ITERATIONS = 400
