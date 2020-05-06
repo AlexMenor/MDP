@@ -6,6 +6,7 @@ import (
 	"MDP/greedy_algorithm"
 	"MDP/local_search_algorithm"
 	"MDP/problem_reader"
+	"MDP/simulated_annealing_algorithm"
 	"bufio"
 	"fmt"
 	"log"
@@ -42,7 +43,7 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(8)
+	choice = readChoice(9)
 
 	var sol []int
 	switch choice {
@@ -64,6 +65,8 @@ func runInteractive() {
 		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.OneRandom)
 	case 8:
 		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.BestOne)
+	case 9:
+		sol = simulated_annealing_algorithm.Compute(n,m, distanceMatrix)
 	}
 
 	fmt.Println(sol)
@@ -186,6 +189,7 @@ func printAlgorithmNames() {
 	fmt.Println("6. Memetic Algorithm (Whole Poblation)")
 	fmt.Println("7. Memetic Algorithm (One Random)")
 	fmt.Println("8. Memetic Algorithm (Best One)")
+	fmt.Println("9. Simulated Annealing")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {
