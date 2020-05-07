@@ -2,13 +2,20 @@ package ils_algorithm
 
 import (
 	"MDP/local_search_algorithm"
+	"MDP/simulated_annealing_algorithm"
 	"math/rand"
 )
 
-func Compute(n, m int, distanceMatrix [][]float32) []int {
+func Compute(n, m int, distanceMatrix [][]float32, localSearch bool) []int {
 	t := m / 10
 
-	sol, _ := local_search_algorithm.ComputeForBMB(n, m, distanceMatrix)
+	var sol []int
+
+	if localSearch {
+		sol, _ = local_search_algorithm.ComputeForBMB(n, m, distanceMatrix)
+	} else {
+		sol = simulated_annealing_algorithm.ComputeForILS(n,m,distanceMatrix, make([]int, 0))
+	}
 
 	bestDiversity := getDiversity(sol, distanceMatrix, m)
 	bestSol := make([]int, m)
@@ -19,7 +26,12 @@ func Compute(n, m int, distanceMatrix [][]float32) []int {
 
 	for i := 0 ; i < MAX_ITERATIONS ; i++ {
 		mutate(sol, n, t)
-		sol, _ = local_search_algorithm.ComputeForILS(n,m, distanceMatrix, sol)
+		if localSearch {
+			sol, _ = local_search_algorithm.ComputeForILS(n, m, distanceMatrix, sol)
+		} else {
+			sol = simulated_annealing_algorithm.ComputeForILS(n,m, distanceMatrix, sol)
+		}
+
 		currentDiversity := getDiversity(sol, distanceMatrix, m)
 
 		if currentDiversity > bestDiversity {

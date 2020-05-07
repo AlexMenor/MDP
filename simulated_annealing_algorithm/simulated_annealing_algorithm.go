@@ -5,20 +5,44 @@ import (
 	"math/rand"
 )
 
+func ComputeForILS(n, m int, distanceMatrix [][]float32, initialSolution []int) []int {
+
+	maxEvaluations := 10000
+	var alpha float32 = 0.8
+
+	if len(initialSolution) != 0 {
+		notSelected := getNotSelected(initialSolution, n)
+		currentDiversity := getDiversity(initialSolution, distanceMatrix, m)
+
+		return ComputeWithParameters(n, m, distanceMatrix, maxEvaluations, initialSolution, notSelected, currentDiversity, alpha)
+	} else {
+		selected, notSelected, currentDiversity := GenRandomSolution(n, m, distanceMatrix)
+
+		return ComputeWithParameters(n, m, distanceMatrix, maxEvaluations, selected, notSelected, currentDiversity, alpha)
+
+	}
+
+}
+
 func Compute(n, m int, distanceMatrix [][]float32) []int {
+	selected, notSelected, currentDiversity := GenRandomSolution(n, m, distanceMatrix)
+
+	return ComputeWithParameters(n, m, distanceMatrix, 100000, selected, notSelected, currentDiversity, 0.95)
+
+}
+
+func ComputeWithParameters(n, m int, distanceMatrix [][]float32, maxEvaluations int, selected []int, notSelected []int, currentDiversity float32, alpha float32) []int {
 	maxNeighbours := n
 	maxSuccess := maxNeighbours / 10
-	annealings := 100000 / maxNeighbours
-
-	selected, notSelected, currentDiversity := GenInitialSolution(n, m, distanceMatrix)
+	annealings := maxEvaluations / maxNeighbours
 
 	bestDiversity := currentDiversity
 	bestSolution := make([]int, len(selected))
 	copy(bestSolution, selected)
 
-	finalTemp := 0.001
+	//finalTemp := 0.001
 	currentTemp := (currentDiversity * 0.3) / 1.204 // -Ln(0.3)
-	beta := (float32(currentTemp) - float32(finalTemp)) / (float32(annealings) * currentTemp * float32(finalTemp))
+	//beta := (float32(currentTemp) - float32(finalTemp)) / (float32(annealings) * currentTemp * float32(finalTemp))
 
 	for a := 0; a < annealings; a++ {
 		currentNeighbours := 0
@@ -52,13 +76,14 @@ func Compute(n, m int, distanceMatrix [][]float32) []int {
 		if currentSuccess == 0 {
 			return bestSolution
 		} else {
-			currentTemp = currentTemp / (1 + beta*currentTemp)
+			//currentTemp = currentTemp / (1 + beta*currentTemp)
+			currentTemp *= alpha
 		}
 	}
 	return bestSolution
 }
 
-func GenInitialSolution(n, m int, distanceMatrix [][]float32) ([]int, []int, float32) {
+func GenRandomSolution(n, m int, distanceMatrix [][]float32) ([]int, []int, float32) {
 	selected := make(map[int]bool)
 
 	for len(selected) < m {
@@ -66,8 +91,8 @@ func GenInitialSolution(n, m int, distanceMatrix [][]float32) ([]int, []int, flo
 		selected[randomSelected] = true
 	}
 
-	toReturnSelected := make([]int, 0,m)
-	toReturnNotSelected := make([]int, 0,n-m)
+	toReturnSelected := make([]int, 0, m)
+	toReturnNotSelected := make([]int, 0, n-m)
 
 	for i := 0; i < n; i++ {
 		_, isSelected := selected[i]
@@ -108,4 +133,23 @@ func swapElements(i, j int, selected, notSelected []int) {
 	temp := selected[i]
 	selected[i] = notSelected[j]
 	notSelected[j] = temp
+}
+
+func getNotSelected(selected []int, n int) []int {
+	notSelected := make([]int, 0, n-len(selected))
+
+	selectedSet := make(map[int]bool)
+
+	for _, s := range selected {
+		selectedSet[s] = true
+	}
+
+	for i := 0; i < n; i++ {
+		_, isSelected := selectedSet[i]
+		if !isSelected {
+			notSelected = append(notSelected, i)
+		}
+	}
+
+	return notSelected
 }

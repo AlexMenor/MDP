@@ -45,7 +45,7 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(11)
+	choice = readChoice(12)
 
 	var sol []int
 	switch choice {
@@ -72,7 +72,10 @@ func runInteractive() {
 	case 10:
 		sol = bmb_algorithm.Compute(n,m, distanceMatrix)
 	case 11:
-		sol = ils_algorithm.Compute(n,m, distanceMatrix)
+		sol = ils_algorithm.Compute(n,m, distanceMatrix, true)
+	case 12:
+		sol = ils_algorithm.Compute(n,m, distanceMatrix, false)
+
 	}
 
 	fmt.Println(sol)
@@ -198,6 +201,7 @@ func printAlgorithmNames() {
 	fmt.Println("9. Simulated Annealing")
 	fmt.Println("10. BMB")
 	fmt.Println("11. ILS")
+	fmt.Println("12. ILS-ES")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {
