@@ -68,13 +68,13 @@ func runInteractive() {
 	case 8:
 		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.BestOne)
 	case 9:
-		sol = simulated_annealing_algorithm.Compute(n,m, distanceMatrix)
+		sol = simulated_annealing_algorithm.Compute(n, m, distanceMatrix)
 	case 10:
-		sol = bmb_algorithm.Compute(n,m, distanceMatrix)
+		sol = bmb_algorithm.Compute(n, m, distanceMatrix)
 	case 11:
-		sol = ils_algorithm.Compute(n,m, distanceMatrix, true)
+		sol = ils_algorithm.Compute(n, m, distanceMatrix, true)
 	case 12:
-		sol = ils_algorithm.Compute(n,m, distanceMatrix, false)
+		sol = ils_algorithm.Compute(n, m, distanceMatrix, false)
 
 	}
 
@@ -97,7 +97,10 @@ func runAllInstances() {
 		"memetic-whole-poblation.csv",
 		"memetic-one-random.csv",
 		"memetic-best-one.csv",
-
+		"simulated-annealing.csv",
+		"bmb.csv",
+		"ils.csv",
+		"ils-es.csv",
 	}
 	os.Mkdir(RESULTS_DIRECTORY, os.ModePerm)
 	instancesNames := getArrayOfInstancesNames()
@@ -126,7 +129,7 @@ func runInstance(instance string, algorithm int) (float32, int64) {
 	case 0:
 		sol = greedy_algorithm.Compute(n, m, distanceMatrix)
 	case 1:
-		sol,_ = local_search_algorithm.Compute(n, m, distanceMatrix)
+		sol, _ = local_search_algorithm.Compute(n, m, distanceMatrix)
 	case 2:
 		sol = genetic_algorithm.Compute(distanceMatrix, n, m, 50, genetic_algorithm.Generational, genetic_algorithm.Positional)
 	case 3:
@@ -141,6 +144,14 @@ func runInstance(instance string, algorithm int) (float32, int64) {
 		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.OneRandom)
 	case 8:
 		sol = memetic_algorithm.Compute(distanceMatrix, n, m, 10, memetic_algorithm.BestOne)
+	case 9:
+		sol = simulated_annealing_algorithm.Compute(n, m, distanceMatrix)
+	case 10:
+		sol = bmb_algorithm.Compute(n, m, distanceMatrix)
+	case 11:
+		sol = ils_algorithm.Compute(n, m, distanceMatrix, true)
+	case 12:
+		sol = ils_algorithm.Compute(n, m, distanceMatrix, false)
 	}
 
 	end := time.Now()
