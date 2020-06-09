@@ -2,6 +2,7 @@ package main
 
 import (
 	"MDP/bmb_algorithm"
+	"MDP/cat_swarm_algorithm"
 	"MDP/evolutionary_algorithms/genetic_algorithm"
 	"MDP/evolutionary_algorithms/memetic_algorithm"
 	"MDP/greedy_algorithm"
@@ -45,7 +46,7 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(12)
+	choice = readChoice(13)
 
 	var sol []int
 	switch choice {
@@ -75,6 +76,8 @@ func runInteractive() {
 		sol = ils_algorithm.Compute(n, m, distanceMatrix, true)
 	case 12:
 		sol = ils_algorithm.Compute(n, m, distanceMatrix, false)
+	case 13:
+		sol = cat_swarm_algorithm.Compute(distanceMatrix, n,m)
 
 	}
 
@@ -213,6 +216,7 @@ func printAlgorithmNames() {
 	fmt.Println("10. BMB")
 	fmt.Println("11. ILS")
 	fmt.Println("12. ILS-ES")
+	fmt.Println("13. Cat Swarm Algorithm")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {
