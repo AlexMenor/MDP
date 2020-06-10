@@ -1,9 +1,74 @@
 package cat_swarm_algorithm
 
 import (
+	"MDP/local_search_algorithm"
 	"math"
 	"math/rand"
 )
+
+func ComputeMemetic(distanceMatrix [][]float32, n, m int) []int {
+
+	N_CATS := 30
+
+	// Cats in Tracing Mode
+	var MIXTURE_RATE float32 = 0.2
+
+	// Number of candidates in Seeking Mode
+	SMP := 3
+
+	// Count current position as candidate in Seeking Mode
+	SPC := true
+
+	// Max number of dimensions able to mutate in Seeking Mode
+	CDC := 3
+
+	// Probability of mutation in Seeking Mode
+	PMO := 0.2
+
+	// Inertia Weight in Tracing Mode
+	W := 0.1
+
+	// Constant in Tracing Mode
+	C1 := 10
+
+	// Max Evaluations
+	MAX_EVALUATIONS := 100000
+
+	// Calculate max iterations
+	MAX_ITERATIONS := float32(MAX_EVALUATIONS) / (float32(N_CATS) + (1-MIXTURE_RATE)*float32(N_CATS)*float32(SMP) + MIXTURE_RATE*float32(N_CATS))
+
+	swarm := GenerateSwarm(distanceMatrix, n, m, N_CATS)
+
+	var bestGenes []bool
+
+	for i := 0; i < int(MAX_ITERATIONS); i++ {
+		bestGenes, _ = swarm.GetBestGenes()
+
+		swarm.SetMixtureRatio(MIXTURE_RATE)
+
+		for j := 0; j < N_CATS; j++ {
+			cat := swarm[j]
+			if cat.tracingMode {
+				cat.ApplyTracing(bestGenes, float32(C1), float32(W))
+
+			} else {
+				cat.ApplySeeking(SMP, CDC, float32(PMO), SPC)
+			}
+		}
+
+		if i % 10 == 0 {
+			solution := genesToSolution(bestGenes)
+			localSearchResult, _ := local_search_algorithm.ComputeForMemeticAlgorithm(n,m, distanceMatrix,solution)
+			genes := genesFromSolution(n, localSearchResult)
+			swarm[0].x = genes
+			swarm[0].RateCat()
+		}
+	}
+
+	bestGenes, _ = swarm.GetBestGenes()
+
+	return genesToSolution(bestGenes)
+}
 
 func Compute(distanceMatrix [][]float32, n, m int) []int {
 
@@ -219,4 +284,14 @@ func genesToSolution(genes []bool) []int {
 		}
 	}
 	return toReturn
+}
+
+func genesFromSolution(n int, solution []int) []bool {
+	genes := make([]bool, n, n)
+
+	for _, s := range solution {
+		genes[s] = true
+	}
+
+	return genes
 }

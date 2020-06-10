@@ -46,7 +46,7 @@ func runInteractive() {
 
 	printAlgorithmNames()
 
-	choice = readChoice(13)
+	choice = readChoice(14)
 
 	var sol []int
 	switch choice {
@@ -78,6 +78,8 @@ func runInteractive() {
 		sol = ils_algorithm.Compute(n, m, distanceMatrix, false)
 	case 13:
 		sol = cat_swarm_algorithm.Compute(distanceMatrix, n,m)
+	case 14:
+		sol = cat_swarm_algorithm.ComputeMemetic(distanceMatrix, n,m)
 
 	}
 
@@ -104,6 +106,8 @@ func runAllInstances() {
 		"bmb.csv",
 		"ils.csv",
 		"ils-es.csv",
+		"cat.csv",
+		"hybrid-cat.csv",
 	}
 	os.Mkdir(RESULTS_DIRECTORY, os.ModePerm)
 	instancesNames := getArrayOfInstancesNames()
@@ -155,6 +159,10 @@ func runInstance(instance string, algorithm int) (float32, int64) {
 		sol = ils_algorithm.Compute(n, m, distanceMatrix, true)
 	case 12:
 		sol = ils_algorithm.Compute(n, m, distanceMatrix, false)
+	case 13:
+		sol = cat_swarm_algorithm.Compute(distanceMatrix, n,m)
+	case 14:
+		sol = cat_swarm_algorithm.ComputeMemetic(distanceMatrix, n,m)
 	}
 
 	end := time.Now()
@@ -217,6 +225,7 @@ func printAlgorithmNames() {
 	fmt.Println("11. ILS")
 	fmt.Println("12. ILS-ES")
 	fmt.Println("13. Cat Swarm Algorithm")
+	fmt.Println("14. Hybrid Cat Swarm Algorithm")
 }
 
 func getDiversity(selected []int, distanceMatrix [][]float32, m int) (diversity float32) {
